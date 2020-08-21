@@ -189,7 +189,9 @@ class Solver:
         except SolveFailure as e:
             raise SolverProblemError(e)
 
-        graph = self._build_graph(self._package, packages)
+        # TODO why is there a lingering variable state / stack during install when invoked via `poetry update`?
+        # NOTE passing explicit empty array for seen to reset between invocations during update + install cycle
+        graph = self._build_graph(self._package, packages, seen=[])
 
         depths = []
         final_packages = []
@@ -213,7 +215,7 @@ class Solver:
         return final_packages, depths
 
     def _build_graph(
-        self, package, packages, previous=None, previous_dep=None, dep=None
+        self, package, packages, previous=None, previous_dep=None, dep=None, seen=[]
     ):  # type: (...) -> Dict[str, Any]
         if not previous:
             category = "dev"
@@ -239,6 +241,12 @@ class Solver:
             "marker": marker,
             "children": childrens,
         }
+
+        # skip already traversed packages
+        if package in seen:
+            return graph
+        else:
+            seen.append(package)
 
         if previous_dep and previous_dep is not dep and previous_dep.name == dep.name:
             return graph
@@ -288,7 +296,7 @@ class Solver:
                             continue
 
                     child_graph = self._build_graph(
-                        pkg, packages, graph, dependency, dep or dependency
+                        pkg, packages, graph, dependency, dep or dependency, seen=seen
                     )
 
                     if not is_activated:
