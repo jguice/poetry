@@ -546,6 +546,7 @@ def test_solver_sub_dependencies_with_requirements_complex(solver, repo, package
     repo.add_package(package_f)
 
     ops = solver.solve()
+    print(ops)
 
     check_solver_result(
         ops,
@@ -564,12 +565,11 @@ def test_solver_sub_dependencies_with_requirements_complex(solver, repo, package
 
     op = ops[0]  # e
     assert str(op.package.marker) == (
-        'python_version < "4.0" and sys_platform == "win32" '
-        'or python_version < "5.0" and sys_platform == "win32"'
+        'python_version < "4.0" and sys_platform == "win32"'
     )
 
     op = ops[1]  # f
-    assert str(op.package.marker) == 'python_version < "5.0"'
+    assert str(op.package.marker) == 'python_version < "4.0"'
 
     op = ops[4]  # a
     assert str(op.package.marker) == 'python_version < "5.0"'
