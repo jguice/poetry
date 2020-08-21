@@ -1,5 +1,11 @@
 # Change Log
 
+## [1.0.11] - 2020-08-21
+
+### Fixed
+
+- Fixed redundant "graph" nodes causing extremely slow performance with large dependency trees
+
 ## [1.0.10] - 2020-07-21
 
 ### Changed
